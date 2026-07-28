@@ -1,14 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, Card, Screen } from '@/src/components/ui';
+import { AppText, Screen } from '@/src/components/ui';
 import { useAppTheme } from '@/src/theme/theme-provider';
 
-export default function IndexScreen() {
+export default function SignInScreen() {
   const { spacing } = useAppTheme();
 
   return (
     <Screen>
-      <View style={[styles.hero, { gap: spacing.md }]}>
+      <View style={[styles.content, { gap: spacing.md }]}>
         <AppText color="primary" variant="label">
           LOYALTY
         </AppText>
@@ -17,18 +17,12 @@ export default function IndexScreen() {
           Sign in to check your points, discover rewards, and scan coupons.
         </AppText>
       </View>
-      <Card style={{ gap: spacing.sm }}>
-        <AppText color="muted" variant="label">
-          CURRENT BALANCE
-        </AppText>
-        <AppText variant="title">— points</AppText>
-      </Card>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: {
+  content: {
     flex: 1,
     justifyContent: 'center',
   },
