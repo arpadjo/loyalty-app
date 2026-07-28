@@ -1,4 +1,13 @@
 export {
+  apiClient,
+  ApiClient,
+  ApiError,
+  ApiHttpError,
+  ApiNetworkError,
+  ApiResponseValidationError,
+} from '@/src/api/client';
+
+export {
   appUserSchema,
   couponRedemptionRequestSchema,
   couponRedemptionResponseSchema,
