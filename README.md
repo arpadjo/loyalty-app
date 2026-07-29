@@ -38,6 +38,35 @@ API responses are validated at runtime. Queries own server state; mutations refr
 points/reward caches. Reward redemption is not optimistic because its response does not contain
 the new balance.
 
+## Project structure
+
+```text
+app/                         Expo Router routes and navigation layouts
+├── _layout.tsx              Root providers and authentication route guards
+├── sign-in.tsx              Public login screen
+└── (app)/                   Protected route group
+    ├── _layout.tsx          Authenticated navigation stack
+    ├── index.tsx            Points, profile, and rewards dashboard
+    └── scan.tsx             QR scanner and manual coupon redemption
+src/
+├── api/                     Zod schemas, inferred API types, and typed HTTP client
+├── auth/                    Auth service/context and platform-specific token storage
+├── components/ui/           Reusable, feature-independent UI primitives and states
+├── config/                  Validated environment-based application configuration
+├── loyalty/                 Loyalty service, queries, mutations, and feature components
+├── query/                   TanStack Query client and provider
+└── theme/                   Theme tokens and light/dark theme provider
+__tests__/                   Focused Jest component and unit tests
+assets/images/               App icons, splash image, and web favicon
+.githooks/pre-commit         Versioned pre-commit test hook
+```
+
+The `app/` directory contains route composition and screen-level orchestration. Reusable business
+logic stays under `src/`, grouped by responsibility. Files ending in `.web.ts` provide the web
+implementation selected automatically by the React Native bundler; the corresponding `.ts` file is
+used on native platforms. Root configuration is kept in `app.json`, `package.json`,
+`tsconfig.json`, `eslint.config.js`, and `jest.setup.ts`.
+
 ## Quality checks
 
 ```bash
