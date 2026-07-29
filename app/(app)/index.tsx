@@ -1,4 +1,5 @@
 import { RefreshControl, View } from 'react-native';
+import { router } from 'expo-router';
 
 import { useAuth } from '@/src/auth';
 import { AppText, Button, ErrorState, LoadingState, Screen } from '@/src/components/ui';
@@ -70,6 +71,12 @@ export default function HomeScreen() {
       ) : (
         <LoadingState label="Loading points…" />
       )}
+
+      <Button
+        accessibilityHint="Opens the coupon QR scanner"
+        label="Scan a coupon"
+        onPress={() => router.push('/scan')}
+      />
 
       <View style={{ gap: spacing.md }}>
         <SectionHeader title="Profile" />

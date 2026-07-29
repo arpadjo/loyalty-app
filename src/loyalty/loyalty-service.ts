@@ -1,11 +1,15 @@
 import { apiClient } from '@/src/api/client';
 import type { ApiClient } from '@/src/api/client';
 import {
+  couponRedemptionRequestSchema,
+  couponRedemptionResponseSchema,
   customerRelationshipSchema,
   rewardsResponseSchema,
   userProfileSchema,
 } from '@/src/api/schemas';
 import type {
+  CouponRedemptionRequest,
+  CouponRedemptionResponse,
   CustomerRelationship,
   RewardsResponse,
   UserProfile,
@@ -53,6 +57,24 @@ export class LoyaltyService {
     return this.client.request({
       path: `/api/v1/clients/${clientId}/bounties/`,
       responseSchema: rewardsResponseSchema,
+      signal: options.signal,
+      token,
+    });
+  }
+
+  async redeemCoupon(
+    token: string,
+    input: CouponRedemptionRequest,
+    options: RequestOptions = {},
+  ): Promise<CouponRedemptionResponse> {
+    const coupon = couponRedemptionRequestSchema.parse(input);
+    const clientId = encodeURIComponent(this.clientId);
+
+    return this.client.request({
+      body: coupon,
+      method: 'POST',
+      path: `/api/v1/clients/${clientId}/redeem/`,
+      responseSchema: couponRedemptionResponseSchema,
       signal: options.signal,
       token,
     });

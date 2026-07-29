@@ -5,6 +5,10 @@ export {
   useRewardsQuery,
 } from '@/src/loyalty/loyalty-queries';
 export {
+  loyaltyMutationKeys,
+  useCouponRedemptionMutation,
+} from '@/src/loyalty/loyalty-mutations';
+export {
   PointsCard,
   ProfileCard,
   RewardCard,
