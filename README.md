@@ -55,6 +55,45 @@ To enable the versioned pre-commit test hook after cloning:
 git config core.hooksPath .githooks
 ```
 
+## Store release
+
+The project is not yet configured for store submission. Before releasing it:
+
+1. Add unique `ios.bundleIdentifier` and `android.package` values to `app.json`.
+2. Set production version/build numbers, environment variables, icons, privacy information,
+   screenshots, and store metadata.
+3. Create an Expo account, a Google Play Console app, and an Apple Developer/App Store Connect app.
+4. Test a production build on physical Android and iOS devices.
+
+Configure [EAS Build](https://docs.expo.dev/build/setup/):
+
+```bash
+npx eas-cli@latest login
+npx eas-cli@latest build:configure
+npx eas-cli@latest build --platform android --profile production
+npx eas-cli@latest build --platform ios --profile production
+```
+
+After the builds succeed, upload the latest binaries with
+[EAS Submit](https://docs.expo.dev/deploy/submit-to-app-stores/):
+
+```bash
+npx eas-cli@latest submit --platform android --latest
+npx eas-cli@latest submit --platform ios --latest
+```
+
+For Android, finish the store listing, content rating, data-safety declaration, testing track, and
+production rollout in Google Play Console. For iOS, finish the metadata, privacy details, screenshots,
+build selection, and review submission in App Store Connect. Users can install the app from the
+stores only after the corresponding review and rollout are complete.
+
+For a production CI/CD workflow, [Bitrise](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-react-native-projects)
+could automate quality checks for pull requests and release builds from protected branches. With
+store credentials and code signing configured as encrypted secrets, separate workflows could run
+`npm test`, linting, and type-checking, then build and deploy signed artifacts to Google Play and
+App Store Connect. Bitrise is a possible future tool for this automation; it was not used to build
+this challenge.
+
 ## Implementation process
 
 Before implementation, I broke the specification into dependency-ordered tasks. I then gave Codex
