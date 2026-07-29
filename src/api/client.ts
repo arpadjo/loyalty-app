@@ -4,6 +4,7 @@ import { appConfig } from '@/src/config/app-config';
 
 type Fetcher = typeof globalThis.fetch;
 type HttpMethod = 'GET' | 'POST';
+type UnauthorizedHandler = (rejectedToken: string) => void;
 
 type ApiRequestOptions<TSchema extends z.ZodType, TBody = never> = {
   body?: TBody;
@@ -47,10 +48,20 @@ export class ApiResponseValidationError extends ApiError {
 }
 
 export class ApiClient {
+  private readonly unauthorizedHandlers = new Set<UnauthorizedHandler>();
+
   constructor(
     private readonly baseUrl: string,
     private readonly fetcher: Fetcher = globalThis.fetch,
   ) {}
+
+  subscribeToUnauthorized(handler: UnauthorizedHandler): () => void {
+    this.unauthorizedHandlers.add(handler);
+
+    return () => {
+      this.unauthorizedHandlers.delete(handler);
+    };
+  }
 
   async request<TSchema extends z.ZodType, TBody = never>({
     body,
@@ -91,6 +102,10 @@ export class ApiClient {
 
     const responseBody = await readResponseBody(response);
 
+    if (response.status === 401 && token) {
+      this.notifyUnauthorized(token);
+    }
+
     if (!response.ok) {
       throw new ApiHttpError(
         getHttpErrorMessage(response.status, response.statusText, responseBody),
@@ -106,6 +121,16 @@ export class ApiClient {
     }
 
     return result.data;
+  }
+
+  private notifyUnauthorized(rejectedToken: string): void {
+    for (const handler of this.unauthorizedHandlers) {
+      try {
+        handler(rejectedToken);
+      } catch {
+        // A session observer must not replace the original HTTP error.
+      }
+    }
   }
 }
 

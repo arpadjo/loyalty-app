@@ -17,7 +17,7 @@ import { useAppTheme } from '@/src/theme/theme-provider';
 type FieldErrors = Partial<Record<keyof LoginRequest, string>>;
 
 export default function SignInScreen() {
-  const { login, restorationError } = useAuth();
+  const { login, restorationError, sessionExpired } = useAuth();
   const { spacing } = useAppTheme();
   const passwordInputRef = useRef<TextInput>(null);
   const [email, setEmail] = useState('');
@@ -63,9 +63,11 @@ export default function SignInScreen() {
 
   const visibleError = submitError
     ? submitError
-    : restorationError
-      ? 'Your saved session could not be restored. Please sign in again.'
-      : null;
+    : sessionExpired
+      ? 'Your session expired. Please sign in again.'
+      : restorationError
+        ? 'Your saved session could not be restored. Please sign in again.'
+        : null;
 
   return (
     <KeyboardAvoidingView
