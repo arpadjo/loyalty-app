@@ -1,6 +1,7 @@
 import { RefreshControl, View } from 'react-native';
 
-import { AppText, ErrorState, LoadingState, Screen } from '@/src/components/ui';
+import { useAuth } from '@/src/auth';
+import { AppText, Button, ErrorState, LoadingState, Screen } from '@/src/components/ui';
 import {
   PointsCard,
   ProfileCard,
@@ -13,6 +14,7 @@ import { useAppTheme } from '@/src/theme/theme-provider';
 
 export default function HomeScreen() {
   const { colors, spacing } = useAppTheme();
+  const { logout } = useAuth();
   const customerRelationshipQuery = useCustomerRelationshipQuery();
   const profileQuery = useProfileQuery();
   const rewardsQuery = useRewardsQuery();
@@ -82,6 +84,12 @@ export default function HomeScreen() {
         ) : (
           <LoadingState label="Loading profile…" />
         )}
+        <Button
+          accessibilityHint="Signs you out and returns to the sign-in screen"
+          label="Log out"
+          onPress={() => void logout()}
+          variant="ghost"
+        />
       </View>
 
       <View style={{ gap: spacing.md }}>
