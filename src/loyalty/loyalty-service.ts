@@ -25,6 +25,15 @@ type RequestOptions = {
 };
 
 export class LoyaltyService {
+  private readonly couponRedemptions = new Map<
+    string,
+    Promise<CouponRedemptionResponse>
+  >();
+  private readonly rewardRedemptions = new Map<
+    string,
+    Promise<RewardRedemptionResponse>
+  >();
+
   constructor(
     private readonly client: ApiClient,
     private readonly clientId: string,
@@ -73,15 +82,18 @@ export class LoyaltyService {
   ): Promise<CouponRedemptionResponse> {
     const coupon = couponRedemptionRequestSchema.parse(input);
     const clientId = encodeURIComponent(this.clientId);
+    const requestKey = createRedemptionKey(token, coupon.code);
 
-    return this.client.request({
-      body: coupon,
-      method: 'POST',
-      path: `/api/v1/clients/${clientId}/redeem/`,
-      responseSchema: couponRedemptionResponseSchema,
-      signal: options.signal,
-      token,
-    });
+    return runSingleFlight(this.couponRedemptions, requestKey, () =>
+      this.client.request({
+        body: coupon,
+        method: 'POST',
+        path: `/api/v1/clients/${clientId}/redeem/`,
+        responseSchema: couponRedemptionResponseSchema,
+        signal: options.signal,
+        token,
+      }),
+    );
   }
 
   async redeemReward(
@@ -91,16 +103,46 @@ export class LoyaltyService {
   ): Promise<RewardRedemptionResponse> {
     const reward = rewardRedemptionRequestSchema.parse(input);
     const clientId = encodeURIComponent(this.clientId);
+    const requestKey = createRedemptionKey(token, reward.bounty_id);
 
-    return this.client.request({
-      body: reward,
-      method: 'POST',
-      path: `/api/v1/clients/${clientId}/bounties/redeem/`,
-      responseSchema: rewardRedemptionResponseSchema,
-      signal: options.signal,
-      token,
-    });
+    return runSingleFlight(this.rewardRedemptions, requestKey, () =>
+      this.client.request({
+        body: reward,
+        method: 'POST',
+        path: `/api/v1/clients/${clientId}/bounties/redeem/`,
+        responseSchema: rewardRedemptionResponseSchema,
+        signal: options.signal,
+        token,
+      }),
+    );
   }
+}
+
+function createRedemptionKey(token: string, resourceId: string): string {
+  return JSON.stringify([token, resourceId]);
+}
+
+function runSingleFlight<T>(
+  requests: Map<string, Promise<T>>,
+  key: string,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const existingRequest = requests.get(key);
+
+  if (existingRequest) {
+    return existingRequest;
+  }
+
+  const request = Promise.resolve()
+    .then(operation)
+    .finally(() => {
+      if (requests.get(key) === request) {
+        requests.delete(key);
+      }
+    });
+
+  requests.set(key, request);
+  return request;
 }
 
 export const loyaltyService = new LoyaltyService(apiClient, appConfig.clientId);
