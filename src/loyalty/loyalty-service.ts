@@ -1,7 +1,15 @@
 import { apiClient } from '@/src/api/client';
 import type { ApiClient } from '@/src/api/client';
-import { customerRelationshipSchema } from '@/src/api/schemas';
-import type { CustomerRelationship } from '@/src/api/types';
+import {
+  customerRelationshipSchema,
+  rewardsResponseSchema,
+  userProfileSchema,
+} from '@/src/api/schemas';
+import type {
+  CustomerRelationship,
+  RewardsResponse,
+  UserProfile,
+} from '@/src/api/types';
 import { appConfig } from '@/src/config/app-config';
 
 type RequestOptions = {
@@ -23,6 +31,28 @@ export class LoyaltyService {
     return this.client.request({
       path: `/api/v1/customer-relationships/client/${clientId}/`,
       responseSchema: customerRelationshipSchema,
+      signal: options.signal,
+      token,
+    });
+  }
+
+  async getProfile(token: string, options: RequestOptions = {}): Promise<UserProfile> {
+    const clientId = encodeURIComponent(this.clientId);
+
+    return this.client.request({
+      path: `/api/v1/users/profile/?client_id=${clientId}`,
+      responseSchema: userProfileSchema,
+      signal: options.signal,
+      token,
+    });
+  }
+
+  async getRewards(token: string, options: RequestOptions = {}): Promise<RewardsResponse> {
+    const clientId = encodeURIComponent(this.clientId);
+
+    return this.client.request({
+      path: `/api/v1/clients/${clientId}/bounties/`,
+      responseSchema: rewardsResponseSchema,
       signal: options.signal,
       token,
     });
