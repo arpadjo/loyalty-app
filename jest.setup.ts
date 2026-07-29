@@ -1,0 +1,2 @@
+process.env.EXPO_PUBLIC_API_BASE_URL = 'https://api.test.invalid';
+process.env.EXPO_PUBLIC_CLIENT_ID = '753d6b63-dc6b-4b28-83fc-6ead93660958';
