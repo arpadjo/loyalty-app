@@ -7,6 +7,7 @@ export {
 export {
   loyaltyMutationKeys,
   useCouponRedemptionMutation,
+  useRewardRedemptionMutation,
 } from '@/src/loyalty/loyalty-mutations';
 export {
   PointsCard,

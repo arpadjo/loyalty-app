@@ -4,6 +4,8 @@ import {
   couponRedemptionRequestSchema,
   couponRedemptionResponseSchema,
   customerRelationshipSchema,
+  rewardRedemptionRequestSchema,
+  rewardRedemptionResponseSchema,
   rewardsResponseSchema,
   userProfileSchema,
 } from '@/src/api/schemas';
@@ -11,6 +13,8 @@ import type {
   CouponRedemptionRequest,
   CouponRedemptionResponse,
   CustomerRelationship,
+  RewardRedemptionRequest,
+  RewardRedemptionResponse,
   RewardsResponse,
   UserProfile,
 } from '@/src/api/types';
@@ -75,6 +79,24 @@ export class LoyaltyService {
       method: 'POST',
       path: `/api/v1/clients/${clientId}/redeem/`,
       responseSchema: couponRedemptionResponseSchema,
+      signal: options.signal,
+      token,
+    });
+  }
+
+  async redeemReward(
+    token: string,
+    input: RewardRedemptionRequest,
+    options: RequestOptions = {},
+  ): Promise<RewardRedemptionResponse> {
+    const reward = rewardRedemptionRequestSchema.parse(input);
+    const clientId = encodeURIComponent(this.clientId);
+
+    return this.client.request({
+      body: reward,
+      method: 'POST',
+      path: `/api/v1/clients/${clientId}/bounties/redeem/`,
+      responseSchema: rewardRedemptionResponseSchema,
       signal: options.signal,
       token,
     });
